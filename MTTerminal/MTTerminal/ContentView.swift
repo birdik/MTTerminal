@@ -59,6 +59,35 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
+                        if newPhase == .active {
+                            if launchingApplication == 0 {
+                                launchingApplication += 1
+                            } else {
+                                if launchingApplicationBackground != 0 {
+                                    launchingApplicationBackground = 0
+                                    Task {
+                                        do {
+                                            try await startWebSocet()
+                                        } catch {
+                                            showingAlert = true
+                                        }
+                                    }
+                                }
+                            }
+                        } else if newPhase == .background {
+                            launchingApplicationBackground = 1
+                            stream?.cancel()
+                        }
+                    }
+                    .alert("Ошибка работы API", isPresented: $showingAlert) {
+                        Button("OK") {exit(0)}
+                    } message: {
+                        Text("Перезайдите в приложение или подождите 5 минут")
+                    }
+                    .onChange(of: network.isConnected) {
+                        showingAlert = true
+                    }
                 }
             }
         }
@@ -66,35 +95,6 @@ struct ContentView: View {
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to:nil, from:nil, for:nil)
         }
         .ignoresSafeArea(.keyboard)
-        .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
-            if newPhase == .active {
-                if launchingApplication == 0 {
-                    launchingApplication += 1
-                } else {
-                    if launchingApplicationBackground != 0 {
-                        launchingApplicationBackground = 0
-                        Task {
-                            do {
-                                try await startWebSocet()
-                            } catch {
-                                showingAlert = true
-                            }
-                        }
-                    }
-                }
-            } else if newPhase == .background {
-                launchingApplicationBackground = 1
-                stream?.cancel()
-            }
-        }
-        .alert("Ошибка работы API", isPresented: $showingAlert) {
-            Button("OK") {exit(0)}
-        } message: {
-            Text("Перезайдите в приложение или подождите 5 минут")
-        }
-        .onChange(of: network.isConnected) {
-            showingAlert = true
-        }
     }
     
     private func startWebSocet() async  throws {
