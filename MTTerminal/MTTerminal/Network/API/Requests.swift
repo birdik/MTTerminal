@@ -22,6 +22,7 @@ struct Request {
         request.setValue("application/json", forHTTPHeaderField: "accept")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("birdik/MTTerminal", forHTTPHeaderField: "x-app-name")
         return request
     }
 }
