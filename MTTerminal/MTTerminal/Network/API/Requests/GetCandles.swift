@@ -34,10 +34,14 @@ struct CandlesResponse: Codable {
         return minLow
     }
     var initialXScroll: String {
-        if candles?.count ?? 0 > 50 {
-            return candles?[((candles?.count ?? 0) - 50)].timeToData.formatted() ?? "0"
+        if candles?.count ?? 0 >= 1 {
+            if candles?.count ?? 0 > 50 {
+                return candles?[((candles?.count ?? 0) - 50)].timeToData.formatted() ?? "0"
+            } else {
+                return candles?[0].timeToData.formatted() ?? "0"
+            }
         } else {
-            return candles?[0].timeToData.formatted() ?? "0"
+            return "0"
         }
     }
     var axisMarks: [String] {
